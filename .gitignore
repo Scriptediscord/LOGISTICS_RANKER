@@ -2,3 +2,5 @@ node_modules
 .env
 config.json
 config2.json
+package.json
+package-lock.json
