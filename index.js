@@ -28,12 +28,11 @@ client.on(Events.MessageReactionAdd,  async  (reaction, user) => {
   .setColor(0x0099FF)
   .setTitle("Comfirmation Message")
   .setDescription("Are you sure you want to update this user?")
-  reaction.message.channel.send({embeds: comfirmationMssg});
 
   const comfirmBtn = new ButtonBuilder()
   .setLabel("Comfirm")
   .setCustomId("comfirmBtn")
-  .setStyle(ButtonStyle.Primary)
+  .setStyle(ButtonStyle.Success)
 
   const denyBtn = new ButtonBuilder()
   .setLabel("Deny")
@@ -44,8 +43,13 @@ client.on(Events.MessageReactionAdd,  async  (reaction, user) => {
   .addComponents(comfirmBtn, denyBtn)
 
   reaction.message.channel.send({
-    embeds: comfirmationMssg,
+    embeds: [comfirmationMssg],
   components: [comfirmaionRow]})
+
+  client.on('interactionCreate', async (interaction) => {
+    if(!interaction.isButton()) return;
+    if(interaction.customId === "comfirmBtn") {
+      interaction.message.delete();
 
 	if (reaction.partial) {	 
     await reaction.fetch()
@@ -77,7 +81,7 @@ const auditChannel = await reaction.message.guild.channels.fetch(config.auditLog
       const rblxID = await noblox.getIdFromUsername(reaction.message.member.nickname)
       console.log(rblxID)
 
-    //await noblox.changeRank(config.groupID, rblxID, 1)
+    await noblox.changeRank(config.groupID, rblxID, 1)
      const newRank = await noblox.getRankNameInGroup(config.groupID, rblxID)
 
      const auditEmbed = new EmbedBuilder()
@@ -99,8 +103,14 @@ auditChannel.send({embeds: [auditEmbed]})
     reaction.message.channel.send({embeds: [errEmbed]}).then(message => {
       setTimeout(() => {
         message.delete();
-      }, 10000)});
-  }})
+      }, 10000);
+    })
+  }
+}else {
+  interaction.message.delete()
+}})
+})
+
 
    
 
